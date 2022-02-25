@@ -1,0 +1,5 @@
+
+
+-	word align code points
+-	index @0000 should be reserved to indicate the absence of a parent
+-	operators like 'add' should be generic, but output concrete operators
