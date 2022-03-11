@@ -14,6 +14,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#define KB (1<<10)
+#define MB (1<<20)
+
 typedef uint8_t   u8;
 typedef uint16_t  u16;
 typedef uint32_t  u32;
@@ -47,7 +50,6 @@ typedef enum {
 	ER_O,
 
 	PROGRAM_O,
-	// think of a value operation as a function that returns a literal value in the monarray
 	VALUE_O,
 
 
@@ -73,11 +75,14 @@ typedef enum {
 	I8_K,  I16_K, I32_K, I64_K,
 	F32_K, F64_K,
 
+	UNKNOWN_K,
 
 	SHAPE_K,
 	GRAPH_K,
 	ARRAY_K,
 
+	KEY_K,
+	REF_K,
 
 	IDX_K,
 	MIX_K
@@ -90,9 +95,14 @@ static char KIND_str[256][10] = {
 	"i8", "i16", "i32", "i64",
 	"f32", "f64",
 
+	"unknown",
+
 	"shape",
 	"graph",
 	"array",
+
+	"key",
+	"ref",
 
 	"idx",
 	"mix"
@@ -136,10 +146,10 @@ typedef struct _Op0_i64 { Code code; i64 z; } Op0_i64;
 typedef struct _Op0_f32 { Code code; f32 z; } Op0_f32;
 typedef struct _Op0_f64 { Code code; f64 z; } Op0_f64;
 
-#define Op0_8_size  (sizeof(Op0_u8));
-#define Op0_16_size (sizeof(Op0_u16));
-#define Op0_32_size (sizeof(Op0_u32));
-#define Op0_64_size (sizeof(Op0_u64));
+#define Op0_8_size  (sizeof(Op0_u8))
+#define Op0_16_size (sizeof(Op0_u16))
+#define Op0_32_size (sizeof(Op0_u32))
+#define Op0_64_size (sizeof(Op0_u64))
 
 
 
@@ -159,10 +169,10 @@ typedef struct _Op1_i64 { Code code; idx a; i64 z; } Op1_i64;
 typedef struct _Op1_f32 { Code code; idx a; f32 z; } Op1_f32;
 typedef struct _Op1_f64 { Code code; idx a; f64 z; } Op1_f64;
 
-#define Op1_8_size  (sizeof(Op1_u8));
-#define Op1_16_size (sizeof(Op1_u16));
-#define Op1_32_size (sizeof(Op1_u32));
-#define Op1_64_size (sizeof(Op1_u64));
+#define Op1_8_size  (sizeof(Op1_u8))
+#define Op1_16_size (sizeof(Op1_u16))
+#define Op1_32_size (sizeof(Op1_u32))
+#define Op1_64_size (sizeof(Op1_u64))
 
 
 typedef struct _Op2     { Code code; idx a; idx b; u8 z[]; } Op2;
@@ -180,14 +190,15 @@ typedef struct _Op2_i64 { Code code; idx a; idx b; i64 z; } Op2_i64;
 typedef struct _Op2_f32 { Code code; idx a; idx b; f32 z; } Op2_f32;
 typedef struct _Op2_f64 { Code code; idx a; idx b; f64 z; } Op2_f64;
 
-#define Op2_8_size  (sizeof(Op2_u8));
-#define Op2_16_size (sizeof(Op2_u16));
-#define Op2_32_size (sizeof(Op2_u32));
-#define Op2_64_size (sizeof(Op2_u64));
+#define Op2_8_size  (sizeof(Op2_u8))
+#define Op2_16_size (sizeof(Op2_u16))
+#define Op2_32_size (sizeof(Op2_u32))
+#define Op2_64_size (sizeof(Op2_u64))
 
 typedef struct _PROGRAM {
 	Code code;
-	u32 z;
+	u32  size;
+	u32  hash; // 
 } PROGRAM;
 
 typedef struct _SHAPE {
@@ -208,7 +219,7 @@ typedef struct _ARRAY {
 	idx  shape;
 	idx  graph;
 	idx  count;			// logical length
-	u8   data[];		// indexes to child points
+	u8   data[];
 } ARRAY;
 
 
@@ -216,6 +227,83 @@ typedef struct _ARRAY {
 #define SHAPE_size (sizeof(SHAPE))
 #define GRAPH_size (sizeof(GRAPH))
 #define ARRAY_size (sizeof(ARRAY))
+
+
+
+
+
+typedef struct _KEY {
+	Code code;
+	idx  point;
+
+	u16  label;
+	u16  shell;
+	idx  count;			// logical length
+	idx  push[];		// indexes of refs that rely on this key
+} KEY;
+
+typedef struct _REF {
+	Code code;
+	idx  index;
+	u16  label;
+	u16  shell;
+} REF;
+
+#define REF_size (sizeof(REF))
+#define KEY_size (sizeof(KEY))
+
+
+
+
+
+
+
+#define label_size (100)
+typedef char label[label_size];
+
+// typedef struct _key {
+// 	idx index;
+// 	u16 shell;
+// 	u16 label;
+// } key;
+// #define key_size (sizeof(key))
+
+
+typedef struct _mem {
+	u8*byte;
+	u32 end;
+	u32 max;
+
+	idx*lookup;
+	u32 lookup_end;
+	u32 lookup_max;
+	
+	// key*key;
+	// idx key_count;
+	// idx key_max;
+} mem;
+
+typedef struct _global {
+	mem A;
+	mem B;
+
+	label*label;
+	u32 label_end;
+	u32 label_max;
+} global;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

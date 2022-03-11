@@ -1,6 +1,89 @@
 
 
 
+
+
+
+10 + 20
+
+
+		0x8 <shape> rank 0, base vali32
+		0x9 <shape> rank 0, base vali32
+	0xA <array> 0x8 data: 10
+	0xB <array> 0x9 data: 20
+		0xC <shape> rank 0, base vali32
+	0xD <array> 0xC data: XX
+0xE addi32 <op2>   0xA 0xB 0xD
+
+
+
+10 + ![2 i32]
+
+
+		0x8 <shape> rank 0, base vali32
+		0x9 <shape> rank 1, base vali32
+	0xA <array> 0x8 data: 10
+	0xB <array> 0x9 data: 0 0
+		0xC <shape> rank 1, base vali32
+	0xD <array> 0xC data: XX XX
+0xE mapi32 <HOF> addi32 0xA 0xB 0xD
+
+select
+iterate
+add
+
+
+Map()
+
+sum: !10 /+
+
+!9 + 1 /*
+
+ID3x3: 3 3 i32 ~ 0
+
+
+10 20 30 $ 3 3 !i32
+
+
+10 20 30 /+
+
+
+
+[10 20 u32]! {1, 2, 3}
+
+
+
+pre-mondadic and post-mondadic forms
+
+
+
+operations no longer contain the result data, instead they contain idxs just like their operands.
+
+this allows for more flexibility and potentially optimizations allow a result register to be reused.
+
+
+
+dependent execution chains should be able to share result data store, 
+what about pipeline parallelism?
+
+
+operations do not return their own index, but the index of their data. we already saw an example  of this with 'cast'
+
+as such there is probably not a need to segregate ops and k
+
+
+if a op recieves a return value as an operand, then it can reuse that space if possible
+
+these return data points should have a flag that marks them as an intermediary value
+these should be safe for optimization because they are inaccessible outside their expression
+
+operations should still return their index to maintain program structure. As well, this would negate the need for a special intermediary value flag.
+
+
+
+
+
+
 Error handling
 
 the array compiler generates a bytecode array

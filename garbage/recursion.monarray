@@ -1,0 +1,44 @@
+
+
+
+// sequential graph
+count: {
+	out: [u64]! out + 100ms
+	-> out
+}
+
+
+
+key("count", graph(
+	key("out", add(
+		cast(shape(U64(0)), rec("out")),
+		clock(100)
+	))
+	ret(ref("out"))
+))
+
+
+
+
+// port addressing
+// a memory address can only have one expression
+@0064: 
+
+
+
+// signals should gate any push signals from variables within
+// signal gates do not prevent variables from re-evaluating and updating, they
+// merely prevent external signals
+// thus signal gates should be place at the point at the specific root of the expression tree that you wish to gate
+count: {
+	out: [u64]! out + (mysignal? 100ms)
+	-> out
+}
+
+key("count", graph(
+	key("out", add(
+		cast(shape(U64(0)), rec("out")),
+		signal(ref("mysignal"), clock(100))
+	))
+	ret(ref("out"))
+))
